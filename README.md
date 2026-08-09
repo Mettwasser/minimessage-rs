@@ -1,6 +1,6 @@
 # minimessage
 
-A (partial) implementation of [MiniMessage](https://docs.advntr.dev/minimessage/index.html) for
+A (partial) implementation of [minimessage](https://docs.papermc.io/adventure/minimessage/) for
 [Pumpkin](https://github.com/Pumpkin-MC/Pumpkin) using a macro that checks the syntax at compile
 time! The macro is fashioned just like `format!`.
 
