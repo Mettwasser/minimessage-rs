@@ -3,13 +3,16 @@ name = "minimessage-macro"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
+description = "Procedural macro for compile-time checked minimessage text formatting"
+repository = "https://github.com/Mettwasser/minimessage-rs"
+homepage = "https://github.com/Mettwasser/minimessage-rs"
 
 [lib]
 proc-macro = true
 
 [dependencies]
 heck = "0.5.0"
-minimessage-impl = { path = "../minimessage-impl" }
+minimessage-impl = { version = "0.1.0", path = "../minimessage-impl" }
 proc-macro2 = "1.0.107"
 quote = "1.0.47"
 syn = { version = "3.0.3", features = ["full"] }
