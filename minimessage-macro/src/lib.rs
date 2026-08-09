@@ -293,7 +293,7 @@ pub fn minimessage(input: TokenStream) -> TokenStream {
     if input.is_file {
         let path = std::path::Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join(value);
         value = fs::read_to_string(&path)
-            .expect(&format!("File not found: {}", path.to_str().unwrap()));
+            .unwrap_or_else(|_| panic!("File not found: {}", path.to_str().unwrap()));
     }
 
     let nodes = Parser::new(Tokenizer::new(&value))

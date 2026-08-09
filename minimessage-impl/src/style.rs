@@ -141,7 +141,7 @@ impl HoverEvent {
                 [] => Err(SpecialError::MissingArgument("item")),
                 [id] => Ok(Self::ShowItem(id.to_string())),
                 [id, count] => {
-                    let item = Item::new(format!("minecraft:{id}"), count)?;
+                    let item = Item::new(format!("minecraft:{id}"), count.parse()?);
                     Ok(Self::ShowItem(fastsnbt::to_string(&item)?))
                 },
                 [id, count, modifier_tag, modifier_value] => match &**modifier_tag {
@@ -155,9 +155,9 @@ impl HoverEvent {
                         }
                         let item = Item::new_with_components(
                             format!("minecraft:{id}"),
-                            count,
+                            count.parse()?,
                             Components { enchantments },
-                        )?;
+                        );
                         Ok(Self::ShowItem(fastsnbt::to_string(&item)?))
                     },
                     modifier => Err(SpecialError::InvalidModifier(modifier.to_owned())),
@@ -268,7 +268,7 @@ impl Special {
         tag: &str,
         descriptors: Vec<Cow<'_, str>>,
     ) -> Result<Self, SpecialError> {
-        match SpecialDiscriminants::from_str(&tag)? {
+        match SpecialDiscriminants::from_str(tag)? {
             SpecialDiscriminants::Click => Ok(Special::Click(ClickEvent::try_from_descriptors(
                 descriptors,
             )?)),
@@ -290,24 +290,20 @@ struct Item {
 }
 
 impl Item {
-    pub fn new(id: String, count: &Cow<'_, str>) -> Result<Self, ParseIntError> {
-        Ok(Item {
+    pub fn new(id: String, count: i32) -> Self {
+        Item {
             id,
-            count: count.parse()?,
+            count,
             components: Components::default(),
-        })
+        }
     }
 
-    pub fn new_with_components(
-        id: String,
-        count: &Cow<'_, str>,
-        components: Components,
-    ) -> Result<Self, ParseIntError> {
-        Ok(Item {
+    pub fn new_with_components(id: String, count: i32, components: Components) -> Self {
+        Item {
             id,
-            count: count.parse()?,
+            count,
             components,
-        })
+        }
     }
 }
 

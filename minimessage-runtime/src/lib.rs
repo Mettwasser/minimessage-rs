@@ -78,6 +78,7 @@ impl<'a> ArgumentCollection<'a> {
     }
 }
 
+#[derive(Default)]
 pub struct FormatArgs<'a> {
     args: ArgumentCollection<'a>,
     pos: usize,

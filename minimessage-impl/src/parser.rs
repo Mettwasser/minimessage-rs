@@ -71,17 +71,11 @@ impl<'a> Parser<'a> {
     }
 
     fn peek(&mut self) -> Option<&Token<'a>> {
-        match self.tokenizer.peek()? {
-            Ok(t) => Some(t),
-            Err(_) => None,
-        }
+        self.tokenizer.peek()?.as_ref().ok()
     }
 
     fn advance(&mut self) -> Option<Token<'a>> {
-        match self.tokenizer.next()? {
-            Ok(t) => Some(t),
-            Err(_) => None,
-        }
+        self.tokenizer.next()?.ok()
     }
 
     fn parse_text(&mut self) -> Result<Cow<'a, str>> {
@@ -464,9 +458,9 @@ mod tests {
                 tag: "p",
                 tag_descriptors: vec![
                     Cow::Borrowed("testingiscool"),
-                    Cow::Borrowed("now with a string".into()),
+                    Cow::Borrowed("now with a string"),
                     Cow::Borrowed("an_ident"),
-                    Cow::Borrowed("and another string".into())
+                    Cow::Borrowed("and another string")
                 ],
                 children: vec![Node::Text(Cow::Borrowed("Hello"))],
             }],

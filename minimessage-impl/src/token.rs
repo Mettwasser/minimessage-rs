@@ -15,7 +15,7 @@ pub enum Token<'a> {
     Text(&'a str),
 }
 
-impl<'a> Token<'_> {
+impl Token<'_> {
     pub const ILLEGAL_TEXT_CHARS: [char; TokenDiscriminants::VARIANTS.len() - 1] =
         TokenDiscriminants::collect_chars(TokenDiscriminants::VARIANTS);
 }

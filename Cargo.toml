@@ -27,3 +27,7 @@ members = [
     "minimessage-impl",
     "minimessage-runtime",
 ]
+
+[lints.clippy]
+"missing_errors_doc" = "allow"
+"pedantic" = { level = "warn", priority = -1 }
