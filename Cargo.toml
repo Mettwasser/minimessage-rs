@@ -31,3 +31,8 @@ members = [
 [lints.clippy]
 "missing_errors_doc" = "allow"
 "pedantic" = { level = "warn", priority = -1 }
+
+[patch.crates-io]
+minimessage-runtime = { path = "minimessage-runtime" }
+minimessage-impl = { path = "minimessage-impl" }
+minimessage-macro = { path = "minimessage-macro" }
