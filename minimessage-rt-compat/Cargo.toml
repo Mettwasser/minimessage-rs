@@ -6,6 +6,6 @@ license = "MIT OR GPL-3.0-or-later"
 publish = false
 
 [dependencies]
-minimessage-runtime = { version = "0.1.1" }
-minimessage-impl = { version = "0.1.1" }
+minimessage-runtime = { version = "0.1" }
+minimessage-impl = { version = "0.1" }
 pumpkin-plugin-api = { git = "https://github.com/Pumpkin-MC/Pumpkin" }
