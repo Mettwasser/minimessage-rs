@@ -21,12 +21,7 @@ name = "parser"
 harness = false
 
 [workspace]
-members = [
-    "minimessage-macro",
-    "macro_test",
-    "minimessage-impl",
-    "minimessage-runtime",
-]
+members = ["minimessage-macro", "minimessage-impl", "minimessage-runtime"]
 
 [lints.clippy]
 "missing_errors_doc" = "allow"
