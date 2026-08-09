@@ -433,7 +433,7 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 
 [[package]]
 name = "minimessage-impl"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "fastsnbt",
  "serde",
@@ -443,7 +443,7 @@ dependencies = [
 
 [[package]]
 name = "minimessage-macro"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "heck",
  "minimessage-impl",
@@ -454,7 +454,7 @@ dependencies = [
 
 [[package]]
 name = "minimessage-rs"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "criterion",
  "minimessage-impl",
@@ -473,7 +473,7 @@ dependencies = [
 
 [[package]]
 name = "minimessage-runtime"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "minimessage-impl",
  "thiserror",
