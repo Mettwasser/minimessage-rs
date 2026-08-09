@@ -6,4 +6,5 @@ pub use minimessage_impl::{
     tokenizer::Tokenizer,
 };
 pub use minimessage_macro::minimessage;
+#[cfg(feature = "runtime")]
 pub use minimessage_runtime::{ArgumentCollection, FormatArgs, deserialize, deserialize_with_args};

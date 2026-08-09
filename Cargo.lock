@@ -455,7 +455,7 @@ checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
 name = "macro_test"
 version = "0.1.0"
 dependencies = [
- "minimessage",
+ "minimessage-rs",
  "pumpkin-plugin-api",
  "rand",
  "tracing",
@@ -472,16 +472,6 @@ name = "minimal-lexical"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
-
-[[package]]
-name = "minimessage"
-version = "0.1.0"
-dependencies = [
- "criterion",
- "minimessage-impl",
- "minimessage-macro",
- "minimessage-runtime",
-]
 
 [[package]]
 name = "minimessage-impl"
@@ -502,6 +492,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 3.0.3",
+]
+
+[[package]]
+name = "minimessage-rs"
+version = "0.1.0"
+dependencies = [
+ "criterion",
+ "minimessage-impl",
+ "minimessage-macro",
+ "minimessage-runtime",
 ]
 
 [[package]]

@@ -1,12 +1,17 @@
 [package]
-name = "minimessage"
+name = "minimessage-rs"
 version = "0.1.0"
 edition = "2024"
+license = "MIT OR GPL-3.0-or-later"
+
+[features]
+default = []
+runtime = ["dep:minimessage-runtime"]
 
 [dependencies]
 minimessage-impl = { path = "./minimessage-impl" }
 minimessage-macro = { path = "./minimessage-macro" }
-minimessage-runtime = { path = "./minimessage-runtime" }
+minimessage-runtime = { path = "./minimessage-runtime", optional = true }
 
 [dev-dependencies]
 criterion = { version = "0.8.2", features = ["html_reports"] }

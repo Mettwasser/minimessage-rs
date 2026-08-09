@@ -2,9 +2,17 @@
 
 A (partial) implementation of minimessage for Pumpkin using a macro that checks the syntax at compile time!
 The macro is fashioned just like `format!`.
+<br>
+
+> **NOTE:**
+>
+> This project is GPLv3 licensed if you use the `runtime` feature flag, as this bundles the `pumpkin-plugin-api` which is GPLv3.
+> If you do not use this feature, it is licensed under MIT.
+
+### Example
 
 ```rs
-minimessage!("<blue>Hello {}!</blue>", user.name);
+minimessage!("<blue>Hello {}!", user.name);
 ```
 
 ## Small Demo
@@ -71,7 +79,7 @@ impl CommandHandler for TestCommandHandler {
 
 ![](readme_data/image2.png)
 
-## Dynamic Rendering
+## Dynamic Rendering (`runtime` feature flag)
 
 You can also render components at runtime:
 

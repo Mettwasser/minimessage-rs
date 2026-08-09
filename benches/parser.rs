@@ -1,7 +1,7 @@
 use std::hint::black_box;
 
 use criterion::{Criterion, criterion_group, criterion_main};
-use minimessage::{Parser, Tokenizer};
+use minimessage_rs::{Parser, Tokenizer};
 
 fn bench_short_text(c: &mut Criterion) {
     c.bench_function("short_text", |b| {
