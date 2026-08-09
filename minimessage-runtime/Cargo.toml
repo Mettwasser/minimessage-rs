@@ -9,5 +9,5 @@ homepage = "https://github.com/Mettwasser/minimessage-rs"
 
 [dependencies]
 minimessage-impl = { version = "0.1.0", path = "../minimessage-impl" }
-pumpkin-plugin-api = { git = "https://github.com/Pumpkin-MC/Pumpkin" }
+pumpkin-plugin-api = { version = "0.1.0", git = "https://github.com/Pumpkin-MC/Pumpkin" }
 thiserror = "2.0.20"
