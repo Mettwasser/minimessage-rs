@@ -1,5 +1,6 @@
 pub mod parser {
     pub use minimessage_impl::{
+        error,
         parser::{Expression, Node, Parser},
         style,
         token::Token,
