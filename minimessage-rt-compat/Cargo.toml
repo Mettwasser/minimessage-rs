@@ -1,0 +1,11 @@
+[package]
+name = "minimessage-rt-compat"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR GPL-3.0-or-later"
+publish = false
+
+[dependencies]
+minimessage-runtime = { version = "0.1.0", path = "../minimessage-runtime" }
+minimessage-impl = { version = "0.1.0", path = "../minimessage-impl" }
+pumpkin-plugin-api = { git = "https://github.com/Pumpkin-MC/Pumpkin" }

@@ -463,11 +463,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "minimessage-rt-compat"
+version = "0.1.0"
+dependencies = [
+ "minimessage-impl",
+ "minimessage-runtime",
+ "pumpkin-plugin-api",
+]
+
+[[package]]
 name = "minimessage-runtime"
 version = "0.1.0"
 dependencies = [
  "minimessage-impl",
- "pumpkin-plugin-api",
  "thiserror",
 ]
 
@@ -580,7 +588,7 @@ dependencies = [
 [[package]]
 name = "pumpkin-plugin-api"
 version = "0.1.0"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin#caf954d17043e1f618f4afe254cbcd479492d80b"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin#bb9e71a951af48445843ca9b96599afb5332590e"
 dependencies = [
  "postcard",
  "serde_json",

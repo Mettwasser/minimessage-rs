@@ -1,13 +1,8 @@
 # minimessage
 
-A (partial) implementation of minimessage for Pumpkin using a macro that checks the syntax at compile time!
-The macro is fashioned just like `format!`.
-<br>
-
-> **NOTE:**
->
-> This project is GPLv3 licensed if you use the `runtime` feature flag, as this bundles the `pumpkin-plugin-api` which is GPLv3.
-> If you do not use this feature, it is licensed under MIT.
+A (partial) implementation of [MiniMessage](https://docs.advntr.dev/minimessage/index.html) for
+[Pumpkin](https://github.com/Pumpkin-MC/Pumpkin) using a macro that checks the syntax at compile
+time! The macro is fashioned just like `format!`.
 
 ### Example
 
@@ -44,7 +39,7 @@ impl CommandHandler for TestCommandHandler {
 
 ![](readme_data/image.png)
 
-## File embedding
+# File embedding
 
 File embedding is another feature. This will insert the file contents at compile time and you get the same,
 compile time checked benefits as if the file contents were in-place!
@@ -79,9 +74,22 @@ impl CommandHandler for TestCommandHandler {
 
 ![](readme_data/image2.png)
 
-## Dynamic Rendering (`runtime` feature flag)
+# Dynamic Rendering
 
-You can also render components at runtime:
+Dynamic rendering requires a new GIT dependency.
+Why? The `pumpkin-plugin-api` is a git dependency which cannot be pushed to crates.io.
+This also allows this project to stay MIT licensed.
+
+To use the dynamic renderer "properly", add this dependency:
+
+```toml
+[dependencies]
+minimessage-rt-compat = { git = "https://github.com/Mettwasser/minimessage-rs", package = "minimessage-rt-compat" }
+```
+
+Please note however that this dependency is licensed as GPLv3 because of its dependency to `pumpkin-plugin-api`
+
+If that's done, you can use the renderer as follows:
 
 ```rs
 struct TestCommandHandler;
@@ -94,12 +102,11 @@ impl CommandHandler for TestCommandHandler {
         _args: ConsumedArgs,
     ) -> pumpkin_plugin_api::Result<i32, CommandError> {
         let text = "<blue>Hello! My name is <white><bold><italic>{my_name}!";
-        let args = minimessage::ArgumentCollection::new().named("my_name", sender.get_name());
+        let args = minimessage_rs::ArgumentCollection::new().named("my_name", sender.get_name());
 
-        let component = minimessage::deserialize_with_args(text, args)
-            .map_err(|err| CommandError::CommandFailed(TextComponent::text(&err.to_string())))?;
+        let component = minimessage_rs::deserialize_with_args(text, args).unwrap();
 
-        sender.send_message(component);
+        sender.send_message(minimessage_rt_compat::convert(&component));
 
         Ok(0)
     }
@@ -107,3 +114,15 @@ impl CommandHandler for TestCommandHandler {
 ```
 
 ![](readme_data/image3.png)
+
+# Crate Structure
+
+| Crate                   | Description                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------- |
+| `minimessage-rs`        | Re-exports for convenience                                                                  |
+| `minimessage-impl`      | Core minimessage parser                                                                     |
+| `minimessage-macro`     | `minimessage!` proc macro                                                                   |
+| `minimessage-runtime`   | Runtime deserialization into a generic component tree                                       |
+| `minimessage-rt-compat` | Converts runtime components to Pumpkin's `TextComponent` (not included in `minimessage-rs`) |
+
+All crates are MIT licensed. `minimessage-rt-compat` is GPLv3 due to its dependency on `pumpkin-plugin-api`.

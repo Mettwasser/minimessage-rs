@@ -2,12 +2,11 @@
 name = "minimessage-runtime"
 version = "0.1.0"
 edition = "2024"
-license = "GPL-3.0-or-later"
-description = "Runtime minimessage deserialization for Pumpkin Minecraft server plugins"
+license = "MIT"
+description = "Runtime minimessage deserialization into a generic component tree"
 repository = "https://github.com/Mettwasser/minimessage-rs"
 homepage = "https://github.com/Mettwasser/minimessage-rs"
 
 [dependencies]
-minimessage-impl = { version = "0.1.0", path = "../minimessage-impl" }
-pumpkin-plugin-api = { version = "0.1.0", git = "https://github.com/Pumpkin-MC/Pumpkin" }
+minimessage-impl = { path = "../minimessage-impl", version = "0.1.0" }
 thiserror = "2.0.20"

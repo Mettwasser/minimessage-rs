@@ -3,12 +3,8 @@ use std::collections::HashMap;
 
 use minimessage_impl::{
     parser::{Expression, Node, Parser},
-    style::{self, ClickEvent, Color, Decoration, HoverEvent, NamedColor, Special, SpecialError},
+    style::{self, ClickEvent, Decoration, HoverEvent, Special, SpecialError},
     tokenizer::Tokenizer,
-};
-use pumpkin_plugin_api::{
-    common::{NamedColor as PumpkingNamedColor, RgbColor},
-    text::TextComponent,
 };
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -27,24 +23,42 @@ pub enum Error {
     Parser(#[from] minimessage_impl::error::Error),
 }
 
-fn map_named_color(color: NamedColor) -> PumpkingNamedColor {
-    match color {
-        NamedColor::Black => PumpkingNamedColor::Black,
-        NamedColor::DarkBlue => PumpkingNamedColor::DarkBlue,
-        NamedColor::DarkGreen => PumpkingNamedColor::DarkGreen,
-        NamedColor::DarkAqua => PumpkingNamedColor::DarkAqua,
-        NamedColor::DarkRed => PumpkingNamedColor::DarkRed,
-        NamedColor::DarkPurple => PumpkingNamedColor::DarkPurple,
-        NamedColor::Gold => PumpkingNamedColor::Gold,
-        NamedColor::Gray => PumpkingNamedColor::Gray,
-        NamedColor::DarkGray => PumpkingNamedColor::DarkGray,
-        NamedColor::Blue => PumpkingNamedColor::Blue,
-        NamedColor::Green => PumpkingNamedColor::Green,
-        NamedColor::Aqua => PumpkingNamedColor::Aqua,
-        NamedColor::Red => PumpkingNamedColor::Red,
-        NamedColor::LightPurple => PumpkingNamedColor::LightPurple,
-        NamedColor::Yellow => PumpkingNamedColor::Yellow,
-        NamedColor::White => PumpkingNamedColor::White,
+pub use minimessage_impl::style::NamedColor;
+
+#[derive(Debug, Clone)]
+pub enum ComponentColor {
+    Named(NamedColor),
+    Rgb(u8, u8, u8),
+}
+
+#[derive(Debug, Clone)]
+pub struct Component {
+    pub text: String,
+    pub color: Option<ComponentColor>,
+    pub bold: bool,
+    pub italic: bool,
+    pub underlined: bool,
+    pub strikethrough: bool,
+    pub obfuscated: bool,
+    pub click_event: Option<ClickEvent>,
+    pub hover_event: Option<HoverEvent>,
+    pub children: Vec<Component>,
+}
+
+impl Component {
+    pub fn text(text: impl Into<String>) -> Self {
+        Component {
+            text: text.into(),
+            color: None,
+            bold: false,
+            italic: false,
+            underlined: false,
+            strikethrough: false,
+            obfuscated: false,
+            click_event: None,
+            hover_event: None,
+            children: Vec::new(),
+        }
     }
 }
 
@@ -103,28 +117,26 @@ impl<'a> FormatArgs<'a> {
     fn resolve_unnamed(&mut self) -> Option<String> {
         let value = self.args.resolve_unnamed(self.pos)?;
         self.pos += 1;
-        Some(value.to_string())
+        Some(value)
     }
 }
 
-fn build_node(node: &Node, args: &mut FormatArgs) -> Result<TextComponent> {
+fn build_node(node: &Node, args: &mut FormatArgs) -> Result<Component> {
     match node {
-        Node::Text(text) => Ok(TextComponent::text(text.as_ref())),
+        Node::Text(text) => Ok(Component::text(text.as_ref())),
 
         Node::Expression(Expression::Named(name)) => {
             let text = args
                 .resolve(name)
                 .ok_or_else(|| Error::NamedArgNotFound(name.to_string()))?;
-
-            Ok(TextComponent::text(&text))
+            Ok(Component::text(text))
         },
 
         Node::Expression(Expression::Unnamed) => {
             let text = args
                 .resolve_unnamed()
                 .ok_or(Error::PositionalArgNotFound(args.pos))?;
-
-            Ok(TextComponent::text(&text))
+            Ok(Component::text(text))
         },
 
         Node::Element {
@@ -132,108 +144,81 @@ fn build_node(node: &Node, args: &mut FormatArgs) -> Result<TextComponent> {
             children,
             tag_descriptors,
         } => {
-            let elem = TextComponent::text("");
+            let mut comp = Component::text("");
 
             if let Some(decoration) = style::tag_to_decoration(tag) {
                 match decoration {
-                    Decoration::Bold => elem.bold(true),
-                    Decoration::Italic => elem.italic(true),
-                    Decoration::Underlined => elem.underlined(true),
-                    Decoration::Strikethrough => elem.strikethrough(true),
-                    Decoration::Obfuscated => elem.obfuscated(true),
+                    Decoration::Bold => comp.bold = true,
+                    Decoration::Italic => comp.italic = true,
+                    Decoration::Underlined => comp.underlined = true,
+                    Decoration::Strikethrough => comp.strikethrough = true,
+                    Decoration::Obfuscated => comp.obfuscated = true,
                 };
             } else if !tag_descriptors.is_empty() {
                 let special = Special::from_descriptor(tag, tag_descriptors.clone())?;
-                apply_special(&elem, special, args)?;
+                apply_special(&mut comp, special)?;
             } else if let Some(color) = style::tag_to_named_color(tag) {
-                elem.color_named(map_named_color(color));
+                comp.color = Some(ComponentColor::Named(color));
             }
 
             for child in children {
                 let child_comp = build_node(child, args)?;
-                elem.add_child(child_comp);
+                comp.children.push(child_comp);
             }
 
-            Ok(elem)
+            Ok(comp)
         },
     }
 }
 
-fn apply_special(
-    component: &TextComponent,
-    special: Special,
-    _args: &mut FormatArgs,
-) -> Result<()> {
+fn apply_special(comp: &mut Component, special: Special) -> Result<()> {
     match special {
-        Special::Click(click) => match click {
-            ClickEvent::OpenUrl(url) => {
-                component.click_open_url(&url);
-            },
-            ClickEvent::RunCommand(command) => {
-                component.click_run_command(&command);
-            },
-            ClickEvent::SuggestCommand(command) => {
-                component.click_suggest_command(&command);
-            },
-            ClickEvent::CopyToClipboard(text) => {
-                component.click_copy_to_clipboard(&text);
-            },
-            ClickEvent::__Empty => {},
+        Special::Click(click) => {
+            comp.click_event = Some(match click {
+                style::ClickEvent::OpenUrl(url) => ClickEvent::OpenUrl(url),
+                style::ClickEvent::RunCommand(cmd) => ClickEvent::RunCommand(cmd),
+                style::ClickEvent::SuggestCommand(cmd) => ClickEvent::SuggestCommand(cmd),
+                style::ClickEvent::CopyToClipboard(text) => ClickEvent::CopyToClipboard(text),
+                style::ClickEvent::__Empty => return Ok(()),
+            });
         },
-        Special::Hover(hover) => match hover {
-            HoverEvent::ShowText(text) => {
-                let text_comp = parse_hover_text(&text)?;
-                component.hover_show_text(text_comp);
-            },
-            HoverEvent::ShowItem(item) => {
-                component.hover_show_item(&item);
-            },
-            HoverEvent::ShowEntity {
-                entity_type,
-                id,
-                name,
-            } => {
-                if let Some(n) = name {
-                    let name_comp = parse_hover_text(&n)?;
-                    component.hover_show_entity(&entity_type, &id, Some(name_comp));
-                } else {
-                    component.hover_show_entity(&entity_type, &id, None::<TextComponent>);
-                }
-            },
-            HoverEvent::__Empty => {},
+        Special::Hover(hover) => {
+            comp.hover_event = Some(match hover {
+                style::HoverEvent::ShowText(text) => HoverEvent::ShowText(text),
+                style::HoverEvent::ShowItem(item) => HoverEvent::ShowItem(item),
+                style::HoverEvent::ShowEntity {
+                    entity_type,
+                    id,
+                    name,
+                } => HoverEvent::ShowEntity {
+                    entity_type,
+                    id,
+                    name,
+                },
+                style::HoverEvent::__Empty => return Ok(()),
+            });
         },
-        Special::Color(Color(r, g, b)) => {
-            component.color_rgb(RgbColor { r, g, b });
+        Special::Color(style::Color(r, g, b)) => {
+            comp.color = Some(ComponentColor::Rgb(r, g, b));
         },
     }
     Ok(())
 }
 
-fn parse_hover_text(text: &str) -> Result<TextComponent> {
-    let nodes = Parser::new(Tokenizer::new(text)).collect::<std::result::Result<Vec<_>, _>>()?;
-    let root = TextComponent::text("");
-    let mut args = FormatArgs::new();
-    for node in &nodes {
-        let child = build_node(node, &mut args)?;
-        root.add_child(child);
-    }
-    Ok(root)
-}
-
-fn build_component(nodes: &[Node], args: &mut FormatArgs) -> Result<TextComponent> {
-    let root = TextComponent::text("");
+fn build_component(nodes: &[Node], args: &mut FormatArgs) -> Result<Component> {
+    let mut root = Component::text("");
     for node in nodes {
         let child = build_node(node, args)?;
-        root.add_child(child);
+        root.children.push(child);
     }
     Ok(root)
 }
 
-pub fn deserialize(input: &str) -> Result<TextComponent> {
+pub fn deserialize(input: &str) -> Result<Component> {
     deserialize_with_args(input, ArgumentCollection::new())
 }
 
-pub fn deserialize_with_args(input: &str, args: ArgumentCollection<'_>) -> Result<TextComponent> {
+pub fn deserialize_with_args(input: &str, args: ArgumentCollection<'_>) -> Result<Component> {
     let nodes =
         Parser::new(Tokenizer::new(input)).collect::<minimessage_impl::error::Result<Vec<_>>>()?;
     let mut fmt_args = FormatArgs::new_args(args);

@@ -1,11 +1,11 @@
 MIT License (default)
-GNU General Public License v3.0 (when using the `runtime` feature)
+GNU General Public License v3.0 (when using `minimessage-rt-compat`)
 
-This project is dual-licensed:
+This project is dual-licensed depending on which crate you use:
 
-- By default, the entire project is licensed under the MIT License (see LICENSE-MIT).
-- When the `runtime` feature is enabled, the `minimessage-runtime` crate (and any
-  combined work) is governed by the GNU General Public License v3.0 (see LICENSE-GPLv3)
-  due to its dependency on Pumpkin, which is GPL v3.
+- The core crates (`minimessage-rs`, `minimessage-impl`, `minimessage-macro`,
+  `minimessage-runtime`) are MIT licensed.
+- `minimessage-rt-compat` is MIT OR GPL-3.0-or-later due to its dependency
+  on Pumpkin, which is GPL v3.
 
 You may choose either license depending on your use case.
