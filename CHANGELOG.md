@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4](https://github.com/Mettwasser/minimessage-rs/compare/minimessage-rs-v0.1.3...minimessage-rs-v0.1.4) - 2026-08-09
+
+### Fixed
+
+- re-export impl's error type in the parser module and make compat
+
+### Other
+
+- update parser re-export to pull result and error types in the
+
 ## [0.1.3](https://github.com/Mettwasser/minimessage-rs/compare/minimessage-rs-v0.1.2...minimessage-rs-v0.1.3) - 2026-08-09
 
 ### Fixed
