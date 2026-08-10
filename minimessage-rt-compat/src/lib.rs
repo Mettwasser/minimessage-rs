@@ -86,22 +86,40 @@ fn to_pumpkin_component(input: &str) -> TextComponent {
     }
 }
 
-pub fn convert(comp: &Component) -> TextComponent {
-    let result = TextComponent::text("");
-
+fn convert_child(comp: &Component, result: &TextComponent) {
     if let Some(rainbow) = comp.rainbow {
-        apply_rainbow(&result, rainbow, &comp.text);
-    } else {
+        let text = flatten_text(comp);
+        apply_rainbow(result, rainbow, &text);
+        return;
+    }
+
+    if !comp.text.is_empty() {
         result.add_text(&comp.text);
     }
 
-    if let Some(ref color) = comp.color {
+    apply_style(result, comp);
+
+    for child in &comp.children {
+        convert_child(child, result);
+    }
+}
+
+fn flatten_text(comp: &Component) -> String {
+    let mut text = comp.text.clone();
+    for child in &comp.children {
+        text.push_str(&flatten_text(child));
+    }
+    text
+}
+
+fn apply_style(comp: &TextComponent, from: &Component) {
+    if let Some(ref color) = from.color {
         match color {
             ComponentColor::Named(named) => {
-                result.color_named(map_named_color(*named));
+                comp.color_named(map_named_color(*named));
             },
             ComponentColor::Rgb(r, g, b) => {
-                result.color_rgb(RgbColor {
+                comp.color_rgb(RgbColor {
                     r: *r,
                     g: *g,
                     b: *b,
@@ -110,33 +128,46 @@ pub fn convert(comp: &Component) -> TextComponent {
         }
     }
 
-    if comp.bold {
-        result.bold(true);
+    if from.bold {
+        comp.bold(true);
     }
-    if comp.italic {
-        result.italic(true);
+    if from.italic {
+        comp.italic(true);
     }
-    if comp.underlined {
-        result.underlined(true);
+    if from.underlined {
+        comp.underlined(true);
     }
-    if comp.strikethrough {
-        result.strikethrough(true);
+    if from.strikethrough {
+        comp.strikethrough(true);
     }
-    if comp.obfuscated {
-        result.obfuscated(true);
-    }
-
-    if let Some(event) = comp.click_event.clone() {
-        apply_click(&result, event.clone());
+    if from.obfuscated {
+        comp.obfuscated(true);
     }
 
-    if let Some(hover) = comp.hover_event.clone() {
-        apply_hover(&result, hover.clone());
+    if let Some(event) = from.click_event.clone() {
+        apply_click(comp, event);
+    }
+
+    if let Some(hover) = from.hover_event.clone() {
+        apply_hover(comp, hover);
+    }
+}
+
+pub fn convert(comp: &Component) -> TextComponent {
+    let result = TextComponent::text("");
+
+    apply_style(&result, comp);
+
+    if !comp.text.is_empty() {
+        if let Some(rainbow) = comp.rainbow {
+            apply_rainbow(&result, rainbow, &comp.text);
+        } else {
+            result.add_text(&comp.text);
+        }
     }
 
     for child in &comp.children {
-        let child_comp = convert(child);
-        result.add_child(child_comp);
+        convert_child(child, &result);
     }
 
     result

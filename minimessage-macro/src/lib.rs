@@ -146,9 +146,8 @@ fn special_to_fn_call_code(special: Special, var: Ident) -> TokenStream2 {
             }
         },
 
-        Special::Rainbow(rainbow) => {
-            panic!("");
-            quote! {}
+        Special::Rainbow(_) => {
+            panic!("Rainbow should be handled at the element level, not here");
         },
     }
 }
@@ -259,31 +258,139 @@ fn generate_nodes(
                     *var_counter - 1
                 });
 
-                let child_code = generate_nodes(children, args, positional_idx, var_counter, &var);
-
-                let code_to_insert = if let Ok(decoration) = Decoration::from_str(tag) {
-                    decoration_to_fn_call_code(decoration, &var)
-                } else if !tag_descriptors.is_empty() {
-                    match Special::from_descriptor(tag, tag_descriptors.clone()) {
-                        Ok(special) => special_to_fn_call_code(special, var.clone()),
-                        Err(e) => {
-                            let msg = e.to_string();
-                            quote! { compile_error!(#msg); }
-                        },
+                if let Ok(Special::Rainbow(rainbow)) =
+                    Special::from_descriptor(tag, tag_descriptors.clone())
+                {
+                    let mut parts: Vec<TokenStream2> = Vec::new();
+                    for child in children {
+                        match child {
+                            Node::Text(text) => {
+                                parts.push(quote! { #text.to_string() });
+                            },
+                            Node::Expression(Expression::Named(name)) => {
+                                let (value_expr, fmt_lit) =
+                                    resolve_named(name, args, positional_idx);
+                                parts.push(quote! { format!(#fmt_lit, #value_expr) });
+                            },
+                            Node::Expression(Expression::Unnamed) => {
+                                let expr = args
+                                    .get(*positional_idx)
+                                    .unwrap_or_else(|| {
+                                        panic!(
+                                            "missing positional format argument {}",
+                                            *positional_idx
+                                        )
+                                    })
+                                    .expr
+                                    .clone();
+                                *positional_idx += 1;
+                                parts.push(quote! { format!("{}", #expr) });
+                            },
+                            Node::Element {
+                                children: nested, ..
+                            } => {
+                                let mut nested_parts: Vec<TokenStream2> = Vec::new();
+                                for n in nested {
+                                    match n {
+                                        Node::Text(t) => {
+                                            nested_parts.push(quote! { #t.to_string() });
+                                        },
+                                        Node::Expression(Expression::Named(name)) => {
+                                            let (value_expr, fmt_lit) =
+                                                resolve_named(name, args, positional_idx);
+                                            nested_parts.push(
+                                                quote! { format!(#fmt_lit, #value_expr) },
+                                            );
+                                        },
+                                        Node::Expression(Expression::Unnamed) => {
+                                            let expr = args
+                                                .get(*positional_idx)
+                                                .unwrap_or_else(|| {
+                                                    panic!(
+                                                        "missing positional format argument {}",
+                                                        *positional_idx
+                                                    )
+                                                })
+                                                .expr
+                                                .clone();
+                                            *positional_idx += 1;
+                                            nested_parts.push(quote! { format!("{}", #expr) });
+                                        },
+                                        Node::Element { .. } => {},
+                                    }
+                                }
+                                let combined = if nested_parts.is_empty() {
+                                    quote! { String::new() }
+                                } else if nested_parts.len() == 1 {
+                                    nested_parts.into_iter().next().unwrap()
+                                } else {
+                                    let mut iter = nested_parts.into_iter();
+                                    let first = iter.next().unwrap();
+                                    iter.fold(first, |acc, p| quote! { #acc + &(#p) })
+                                };
+                                parts.push(combined);
+                            },
+                        }
                     }
+
+                    let combined = if parts.is_empty() {
+                        quote! { String::new() }
+                    } else if parts.len() == 1 {
+                        parts.into_iter().next().unwrap()
+                    } else {
+                        let mut iter = parts.into_iter();
+                        let first = iter.next().unwrap();
+                        iter.fold(first, |acc, p| quote! { #acc + &(#p) })
+                    };
+
+                    let inverted = rainbow.inverted;
+                    let offset = rainbow.offset;
+
+                    code.extend(quote! {
+                        {
+                            let __text = #combined;
+                            if !__text.is_empty() {
+                                let __rainbow = Rainbow { inverted: #inverted, offset: #offset };
+                                for (__color, __ch) in __rainbow.text(&__text) {
+                                    let __comp = TextComponent::text(&__ch.to_string());
+                                    __comp.color_rgb(RgbColor {
+                                        r: __color.0,
+                                        g: __color.1,
+                                        b: __color.2,
+                                    });
+                                    #parent.add_child(__comp);
+                                }
+                            }
+                        }
+                    });
                 } else {
-                    let color = tag_to_color_code(tag);
-                    quote! {
-                        #var.color_named(#color);
-                    }
-                };
+                    let child_code =
+                        generate_nodes(children, args, positional_idx, var_counter, &var);
 
-                code.extend(quote! {
-                    let #var = TextComponent::text("");
-                    #code_to_insert
-                    #child_code
-                    #parent.add_child(#var);
-                });
+                    let code_to_insert = if let Ok(decoration) = Decoration::from_str(tag) {
+                        decoration_to_fn_call_code(decoration, &var)
+                    } else if !tag_descriptors.is_empty() {
+                        match Special::from_descriptor(tag, tag_descriptors.clone()) {
+                            Ok(special) => special_to_fn_call_code(special, var.clone()),
+                            Err(e) => {
+                                let msg = e.to_string();
+                                quote! { compile_error!(#msg); }
+                            },
+                        }
+                    } else {
+                        let color = tag_to_color_code(tag);
+                        quote! {
+                            #var.color_named(#color);
+                        }
+                    };
+
+                    code.extend(quote! {
+                        let #var = TextComponent::text("");
+                        #code_to_insert
+                        #child_code
+                        #parent.add_child(#var);
+                    });
+                }
             },
         }
     }
@@ -319,6 +426,7 @@ pub fn minimessage(input: TokenStream) -> TokenStream {
     quote! {
         {
             use ::pumpkin_plugin_api::{common::NamedColor, text::{TextComponent, RgbColor}};
+            use minimessage_rs::parser::style::rainbow::Rainbow;
 
             let #root = TextComponent::text("");
             #child_code

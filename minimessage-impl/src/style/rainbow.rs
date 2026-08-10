@@ -17,8 +17,8 @@ pub enum RainbowError {
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct Rainbow {
-    inverted: bool,
-    offset: usize,
+    pub inverted: bool,
+    pub offset: usize,
 }
 
 impl Rainbow {
@@ -41,9 +41,9 @@ impl Rainbow {
                     t = 1.0 - t;
                 }
 
-                let hue = (t + self.offset as f32).rem_euclid(1.0);
+                let hue = (t + self.offset as f32) * 0.75;
 
-                (Color::from_hsv(hue, 1.0, 1.0), ch)
+                (Color::from_hsv(hue, 0.75, 1.0), ch)
             })
             .collect()
     }
