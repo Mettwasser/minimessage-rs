@@ -1,6 +1,6 @@
 use std::{iter::Peekable, str::CharIndices};
 
-use crate::{error::Result, token::Token};
+use crate::token::Token;
 
 pub struct Tokenizer<'a> {
     pub(crate) input: &'a str,
@@ -18,23 +18,23 @@ impl<'a> Tokenizer<'a> {
 }
 
 impl<'a> Iterator for Tokenizer<'a> {
-    type Item = Result<Token<'a>>;
+    type Item = Token<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let (token_start_idx, char) = self.char_indices.next()?;
 
         let token_result = match char {
-            '<' => Ok(Token::AngleOpen),
-            '>' => Ok(Token::AngleClose),
-            '{' => Ok(Token::CurlyOpen),
-            '}' => Ok(Token::CurlyClose),
-            '\\' => Ok(Token::Backslash),
-            '/' => Ok(Token::Slash),
-            ':' => Ok(Token::Colon),
-            '"' => Ok(Token::DoubleQuote),
-            '\'' => Ok(Token::Quote),
+            '<' => Token::AngleOpen,
+            '>' => Token::AngleClose,
+            '{' => Token::CurlyOpen,
+            '}' => Token::CurlyClose,
+            '\\' => Token::Backslash,
+            '/' => Token::Slash,
+            ':' => Token::Colon,
+            '"' => Token::DoubleQuote,
+            '\'' => Token::Quote,
 
-            _ => Ok(Token::Text(self.read_string(token_start_idx, char)?)),
+            _ => Token::Text(self.read_string(token_start_idx, char)?),
         };
 
         Some(token_result)
@@ -63,7 +63,7 @@ mod tests {
     use super::*;
 
     fn tokenize(input: &str) -> Vec<Token<'_>> {
-        Tokenizer::new(input).collect::<Result<Vec<_>>>().unwrap()
+        Tokenizer::new(input).collect::<Vec<_>>()
     }
 
     #[test]
@@ -261,9 +261,9 @@ mod tests {
     #[test]
     fn tokenize_is_consuming() {
         let mut tokenizer = Tokenizer::new("<a>");
-        assert_eq!(tokenizer.next().unwrap().unwrap(), Token::AngleOpen);
-        assert_eq!(tokenizer.next().unwrap().unwrap(), Token::Text("a"));
-        assert_eq!(tokenizer.next().unwrap().unwrap(), Token::AngleClose);
+        assert_eq!(tokenizer.next().unwrap(), Token::AngleOpen);
+        assert_eq!(tokenizer.next().unwrap(), Token::Text("a"));
+        assert_eq!(tokenizer.next().unwrap(), Token::AngleClose);
         assert!(tokenizer.next().is_none());
     }
 

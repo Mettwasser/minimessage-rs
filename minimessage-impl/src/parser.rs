@@ -70,12 +70,12 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn peek(&mut self) -> Option<&Token<'a>> {
-        self.tokenizer.peek()?.as_ref().ok()
+    fn peek(&mut self) -> Option<Token<'a>> {
+        self.tokenizer.peek().copied()
     }
 
     fn advance(&mut self) -> Option<Token<'a>> {
-        self.tokenizer.next()?.ok()
+        self.tokenizer.next()
     }
 
     fn parse_text(&mut self) -> Result<Cow<'a, str>> {
@@ -200,7 +200,7 @@ impl<'a> Parser<'a> {
     fn parse_descriptors(&mut self) -> Result<Vec<Cow<'a, str>>> {
         let mut descriptors = Vec::new();
 
-        while self.peek() == Some(&Token::Colon) {
+        while self.peek() == Some(Token::Colon) {
             self.advance(); // consume `:`
 
             let descriptor = match self.advance() {
@@ -267,7 +267,7 @@ impl<'a> Parser<'a> {
             Some(_) => {
                 let name = expect_token!(self.advance(), Token::Text(t) => t);
 
-                let name = if self.peek() == Some(&Token::Colon) {
+                let name = if self.peek() == Some(Token::Colon) {
                     self.advance();
                     let format_spec = expect_token!(self.advance(), Token::Text(t) => t);
                     Cow::Owned(format!("{}:{}", name, format_spec))

@@ -1,6 +1,6 @@
 use strum::{EnumDiscriminants, VariantArray};
 
-#[derive(Debug, Clone, PartialEq, EnumDiscriminants)]
+#[derive(Debug, Clone, Copy, PartialEq, EnumDiscriminants)]
 #[strum_discriminants(derive(VariantArray))]
 pub enum Token<'a> {
     AngleOpen,
