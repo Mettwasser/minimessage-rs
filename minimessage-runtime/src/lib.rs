@@ -1,9 +1,9 @@
 use core::fmt;
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use minimessage_impl::{
     parser::{Expression, Node, Parser},
-    style::{self, ClickEvent, Decoration, HoverEvent, Special, SpecialError},
+    style::{self, ClickEvent, Decoration, HoverEvent, Special, SpecialError, rainbow::Rainbow},
     tokenizer::Tokenizer,
 };
 
@@ -42,6 +42,7 @@ pub struct Component {
     pub obfuscated: bool,
     pub click_event: Option<ClickEvent>,
     pub hover_event: Option<HoverEvent>,
+    pub rainbow: Option<Rainbow>,
     pub children: Vec<Component>,
 }
 
@@ -57,6 +58,7 @@ impl Component {
             obfuscated: false,
             click_event: None,
             hover_event: None,
+            rainbow: None,
             children: Vec::new(),
         }
     }
@@ -145,8 +147,11 @@ fn build_node(node: &Node, args: &mut FormatArgs) -> Result<Component> {
             tag_descriptors,
         } => {
             let mut comp = Component::text("");
+            let mut matched = false;
 
-            if let Some(decoration) = style::tag_to_decoration(tag) {
+            if let Ok(decoration) = Decoration::from_str(tag) {
+                matched = true;
+
                 match decoration {
                     Decoration::Bold => comp.bold = true,
                     Decoration::Italic => comp.italic = true,
@@ -154,11 +159,24 @@ fn build_node(node: &Node, args: &mut FormatArgs) -> Result<Component> {
                     Decoration::Strikethrough => comp.strikethrough = true,
                     Decoration::Obfuscated => comp.obfuscated = true,
                 };
-            } else if !tag_descriptors.is_empty() {
-                let special = Special::from_descriptor(tag, tag_descriptors.clone())?;
-                apply_special(&mut comp, special)?;
-            } else if let Some(color) = style::tag_to_named_color(tag) {
+            }
+
+            match Special::from_descriptor(tag, tag_descriptors.clone()) {
+                Ok(special) => {
+                    matched = true;
+                    apply_special(&mut comp, special)?;
+                },
+                Err(SpecialError::NotFound(_)) => {},
+                Err(err) => return Err(err.into()),
+            }
+
+            if let Ok(color) = style::NamedColor::from_str(tag) {
+                matched = true;
                 comp.color = Some(ComponentColor::Named(color));
+            }
+
+            if !matched {
+                return Err(Error::Special(SpecialError::UnknownTag(tag.to_string())));
             }
 
             for child in children {
@@ -200,6 +218,9 @@ fn apply_special(comp: &mut Component, special: Special) -> Result<()> {
         },
         Special::Color(style::Color(r, g, b)) => {
             comp.color = Some(ComponentColor::Rgb(r, g, b));
+        },
+        Special::Rainbow(rainbow) => {
+            comp.rainbow = Some(rainbow);
         },
     }
     Ok(())

@@ -1,9 +1,9 @@
-use std::{env, fs};
+use std::{env, fs, str::FromStr};
 
 use heck::ToPascalCase;
 use minimessage_impl::{
     parser::{Expression, Node, Parser},
-    style::{self, ClickEvent, Color, Decoration, HoverEvent, Special},
+    style::{self, ClickEvent, Decoration, HoverEvent, Special, color::Color},
     tokenizer::Tokenizer,
 };
 use proc_macro::TokenStream;
@@ -145,6 +145,11 @@ fn special_to_fn_call_code(special: Special, var: Ident) -> TokenStream2 {
                 #var.color_rgb(RgbColor { r: #r, g: #g, b: #b });
             }
         },
+
+        Special::Rainbow(rainbow) => {
+            panic!("");
+            quote! {}
+        },
     }
 }
 
@@ -256,7 +261,7 @@ fn generate_nodes(
 
                 let child_code = generate_nodes(children, args, positional_idx, var_counter, &var);
 
-                let code_to_insert = if let Some(decoration) = style::tag_to_decoration(tag) {
+                let code_to_insert = if let Ok(decoration) = Decoration::from_str(tag) {
                     decoration_to_fn_call_code(decoration, &var)
                 } else if !tag_descriptors.is_empty() {
                     match Special::from_descriptor(tag, tag_descriptors.clone()) {

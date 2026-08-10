@@ -1,4 +1,4 @@
-use minimessage_impl::style::{ClickEvent, HoverEvent};
+use minimessage_impl::style::{ClickEvent, HoverEvent, rainbow::Rainbow};
 use minimessage_runtime::{Component, ComponentColor, NamedColor};
 use pumpkin_plugin_api::{
     common::{NamedColor as PumpkinNamedColor, RgbColor},
@@ -67,6 +67,18 @@ fn apply_hover(comp: &TextComponent, hover: HoverEvent) {
     }
 }
 
+fn apply_rainbow(comp: &TextComponent, rainbow: Rainbow, text: &str) {
+    for (color, char) in rainbow.text(text) {
+        let text_component = TextComponent::text(&char.to_string());
+        text_component.color_rgb(RgbColor {
+            r: color.0,
+            g: color.1,
+            b: color.2,
+        });
+        comp.add_child(text_component);
+    }
+}
+
 fn to_pumpkin_component(input: &str) -> TextComponent {
     match minimessage_runtime::deserialize(input) {
         Ok(comp) => convert(&comp),
@@ -75,7 +87,13 @@ fn to_pumpkin_component(input: &str) -> TextComponent {
 }
 
 pub fn convert(comp: &Component) -> TextComponent {
-    let result = TextComponent::text(&comp.text);
+    let result = TextComponent::text("");
+
+    if let Some(rainbow) = comp.rainbow {
+        apply_rainbow(&result, rainbow, &comp.text);
+    } else {
+        result.add_text(&comp.text);
+    }
 
     if let Some(ref color) = comp.color {
         match color {
@@ -108,11 +126,11 @@ pub fn convert(comp: &Component) -> TextComponent {
         result.obfuscated(true);
     }
 
-    if let Some(ref event) = comp.click_event {
+    if let Some(event) = comp.click_event.clone() {
         apply_click(&result, event.clone());
     }
 
-    if let Some(ref hover) = comp.hover_event {
+    if let Some(hover) = comp.hover_event.clone() {
         apply_hover(&result, hover.clone());
     }
 
