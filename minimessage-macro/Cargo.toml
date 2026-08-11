@@ -1,6 +1,6 @@
 [package]
 name = "minimessage-macro"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 license = "MIT"
 description = "Procedural macro for compile-time checked minimessage text formatting"
@@ -12,7 +12,7 @@ proc-macro = true
 
 [dependencies]
 heck = "0.5.0"
-minimessage-impl = { version = "0.1.1", path = "../minimessage-impl" }
+minimessage-impl = { version = "0.2.0", path = "../minimessage-impl" }
 proc-macro2 = "1.0.107"
 quote = "1.0.47"
 syn = { version = "3.0.3", features = ["full"] }

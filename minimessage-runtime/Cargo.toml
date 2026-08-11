@@ -1,6 +1,6 @@
 [package]
 name = "minimessage-runtime"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2024"
 license = "MIT"
 description = "Runtime minimessage deserialization into a generic component tree"
@@ -8,5 +8,5 @@ repository = "https://github.com/Mettwasser/minimessage-rs"
 homepage = "https://github.com/Mettwasser/minimessage-rs"
 
 [dependencies]
-minimessage-impl = { path = "../minimessage-impl", version = "0.1.1" }
+minimessage-impl = { path = "../minimessage-impl", version = "0.2.0" }
 thiserror = "2.0.20"
