@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5](https://github.com/Mettwasser/minimessage-rs/compare/minimessage-rs-v0.1.4...minimessage-rs-v0.1.5) - 2026-08-11
+
+### Other
+
+- updated the following local packages: minimessage-impl, minimessage-macro, minimessage-runtime
+
 ## [0.1.4](https://github.com/Mettwasser/minimessage-rs/compare/minimessage-rs-v0.1.3...minimessage-rs-v0.1.4) - 2026-08-09
 
 ### Fixed

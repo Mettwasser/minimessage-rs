@@ -1,6 +1,6 @@
 [package]
 name = "minimessage-rs"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 license = "MIT"
 description = "minimessage text formatting for Pumpkin Minecraft server plugins"
@@ -9,9 +9,9 @@ homepage = "https://github.com/Mettwasser/minimessage-rs"
 
 
 [dependencies]
-minimessage-impl = { path = "./minimessage-impl", version = "0.1.1" }
-minimessage-macro = { path = "./minimessage-macro", version = "0.1.1" }
-minimessage-runtime = { path = "./minimessage-runtime", version = "0.1.1" }
+minimessage-impl = { path = "./minimessage-impl", version = "0.2.0" }
+minimessage-macro = { path = "./minimessage-macro", version = "0.1.2" }
+minimessage-runtime = { path = "./minimessage-runtime", version = "0.2.0" }
 
 [dev-dependencies]
 criterion = { version = "0.8.2", features = ["html_reports"] }
