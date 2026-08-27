@@ -22,29 +22,27 @@ pub struct Rainbow {
 }
 
 impl Rainbow {
+    pub fn color_at(self, index: usize, char_count: usize) -> Color {
+        let mut t = if char_count > 1 {
+            index as f32 / (char_count - 1) as f32
+        } else {
+            0.0
+        };
+
+        if self.inverted {
+            t = 1.0 - t;
+        }
+
+        let hue = (t + self.offset as f32) * 0.75;
+        Color::from_hsv(hue, 0.75, 1.0)
+    }
+
     pub fn text(self, text: &str) -> Vec<(Color, char)> {
         let char_count = text.chars().count();
-        if char_count == 0 {
-            return Vec::new();
-        }
 
         text.chars()
             .enumerate()
-            .map(|(i, ch)| {
-                let mut t = if char_count > 1 {
-                    i as f32 / (char_count - 1) as f32
-                } else {
-                    0.0
-                };
-
-                if self.inverted {
-                    t = 1.0 - t;
-                }
-
-                let hue = (t + self.offset as f32) * 0.75;
-
-                (Color::from_hsv(hue, 0.75, 1.0), ch)
-            })
+            .map(|(index, ch)| (self.color_at(index, char_count), ch))
             .collect()
     }
 }
@@ -91,6 +89,25 @@ impl TryFromDescriptors for Rainbow {
             args => Err(SpecialError::TooManyArguments(
                 args.iter().map(ToString::to_string).collect(),
             )),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn indexed_colors_match_text_colors() {
+        let rainbow = Rainbow {
+            inverted: true,
+            offset: 2,
+        };
+        let text = "hello";
+        let colors = rainbow.text(text);
+
+        for (index, (color, _)) in colors.into_iter().enumerate() {
+            assert_eq!(color, rainbow.color_at(index, text.chars().count()));
         }
     }
 }

@@ -2,7 +2,7 @@ use std::{env, fs};
 
 use minimessage_impl::{parser::Parser, tokenizer::Tokenizer};
 use proc_macro::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
 
 mod codegen;
 mod input;
@@ -23,25 +23,18 @@ pub fn minimessage(input: TokenStream) -> TokenStream {
         .collect::<std::result::Result<Vec<_>, _>>()
         .unwrap();
 
-    let root = format_ident!("__root");
-    let mut counter = 0;
     let mut positional_idx = 0;
-    let child_code = codegen::generate_nodes(
-        &nodes,
-        &input.args,
-        &mut positional_idx,
-        &mut counter,
-        &root,
-    );
+    let component = codegen::generate_component(&nodes, &input.args, &mut positional_idx);
 
     quote! {
         {
-            use ::pumpkin_plugin_api::{common::NamedColor, text::{TextComponent, RgbColor}};
-            use minimessage_rs::parser::style::rainbow::Rainbow;
+            use ::pumpkin_plugin_api::{
+                common::{NamedColor, RgbColor},
+                text::TextComponent,
+            };
+            use ::minimessage_rs::parser::style::rainbow::Rainbow;
 
-            let #root = TextComponent::text("");
-            #child_code
-            #root
+            #component
         }
     }
     .into()

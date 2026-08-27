@@ -1,9 +1,9 @@
 pub mod click_event;
 pub mod color;
+pub mod gradient_impl;
 pub mod hover_event;
 pub mod rainbow;
 pub mod special;
-pub mod gradient_impl;
 
 use std::{borrow::Cow, collections::HashMap};
 
