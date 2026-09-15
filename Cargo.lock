@@ -443,7 +443,7 @@ dependencies = [
 
 [[package]]
 name = "minimessage-macro"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "heck",
  "minimessage-impl",
@@ -454,7 +454,7 @@ dependencies = [
 
 [[package]]
 name = "minimessage-rs"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "criterion",
  "minimessage-impl",
@@ -464,7 +464,7 @@ dependencies = [
 
 [[package]]
 name = "minimessage-runtime"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "minimessage-impl",
  "pumpkin-plugin-api",

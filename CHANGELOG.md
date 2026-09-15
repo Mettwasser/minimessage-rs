@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6](https://github.com/Mettwasser/minimessage-rs/compare/minimessage-rs-v0.1.5...minimessage-rs-v0.1.6) - 2026-09-15
+
+### Added
+
+- migrate to the crates.io version of pumpkin-plugin-api
+
 ## [0.1.5](https://github.com/Mettwasser/minimessage-rs/compare/minimessage-rs-v0.1.4...minimessage-rs-v0.1.5) - 2026-08-27
 
 ### Other
