@@ -1,6 +1,6 @@
 [package]
 name = "minimessage-runtime"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2024"
 license = "MIT"
 description = "Runtime minimessage deserialization into a generic component tree"
