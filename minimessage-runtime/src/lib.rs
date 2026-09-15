@@ -1,3 +1,6 @@
+#[cfg(feature = "pumpkin")]
+pub mod pumpkin_impl;
+
 use core::fmt;
 use std::{collections::HashMap, str::FromStr};
 
@@ -235,13 +238,29 @@ fn build_component(nodes: &[Node], args: &mut FormatArgs) -> Result<Component> {
     Ok(root)
 }
 
-pub fn deserialize(input: &str) -> Result<Component> {
-    deserialize_with_args(input, ArgumentCollection::new())
+fn deserialize_into_component(input: &str) -> Result<Component> {
+    deserialize_into_component_with_args(input, ArgumentCollection::new())
 }
 
-pub fn deserialize_with_args(input: &str, args: ArgumentCollection<'_>) -> Result<Component> {
+fn deserialize_into_component_with_args(
+    input: &str,
+    args: ArgumentCollection<'_>,
+) -> Result<Component> {
     let nodes =
         Parser::new(Tokenizer::new(input)).collect::<minimessage_impl::error::Result<Vec<_>>>()?;
     let mut fmt_args = FormatArgs::new_args(args);
     build_component(&nodes, &mut fmt_args)
+}
+
+#[cfg(feature = "pumpkin")]
+pub fn deserialize(input: &str) -> Result<pumpkin_plugin_api::text::TextComponent> {
+    deserialize_into_component(input).map(|c| pumpkin_impl::convert(&c))
+}
+
+#[cfg(feature = "pumpkin")]
+pub fn deserialize_with_args(
+    input: &str,
+    args: ArgumentCollection<'_>,
+) -> Result<pumpkin_plugin_api::text::TextComponent> {
+    deserialize_into_component_with_args(input, args).map(|c| pumpkin_impl::convert(&c))
 }

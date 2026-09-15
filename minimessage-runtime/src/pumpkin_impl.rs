@@ -1,9 +1,10 @@
 use minimessage_impl::style::{ClickEvent, HoverEvent, rainbow::Rainbow};
-use minimessage_runtime::{Component, ComponentColor, NamedColor};
 use pumpkin_plugin_api::{
     common::{NamedColor as PumpkinNamedColor, RgbColor},
     text::TextComponent,
 };
+
+use crate::{Component, ComponentColor, NamedColor};
 
 fn map_named_color(color: NamedColor) -> PumpkinNamedColor {
     match color {
@@ -80,7 +81,7 @@ fn apply_rainbow(mut comp: TextComponent, state: &mut RainbowState, text: &str) 
 }
 
 fn to_pumpkin_component(input: &str) -> TextComponent {
-    match minimessage_runtime::deserialize(input) {
+    match crate::deserialize_into_component(input) {
         Ok(comp) => convert(&comp),
         Err(_) => TextComponent::text(input),
     }
@@ -179,7 +180,7 @@ mod tests {
 
     #[test]
     fn rainbow_count_crosses_decorations_and_excludes_colors() {
-        let component = minimessage_runtime::deserialize(
+        let component = crate::deserialize_into_component(
             "<rainbow>a<bold>b</bold><blue>excluded</blue>c</rainbow>",
         )
         .unwrap();

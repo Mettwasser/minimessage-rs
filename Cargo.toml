@@ -7,11 +7,14 @@ description = "minimessage text formatting for Pumpkin Minecraft server plugins"
 repository = "https://github.com/Mettwasser/minimessage-rs"
 homepage = "https://github.com/Mettwasser/minimessage-rs"
 
+[features]
+default = ["pumpkin"]
+pumpkin = ["minimessage-runtime/pumpkin"]
 
 [dependencies]
 minimessage-impl = { path = "./minimessage-impl", version = "0.1.2" }
 minimessage-macro = { path = "./minimessage-macro", version = "0.1.2" }
-minimessage-runtime = { path = "./minimessage-runtime", version = "0.1.2" }
+minimessage-runtime = { path = "./minimessage-runtime", version = "0.1.2", default-features = false }
 
 [dev-dependencies]
 criterion = { version = "0.8.2", features = ["html_reports"] }
@@ -21,12 +24,7 @@ name = "parser"
 harness = false
 
 [workspace]
-members = [
-    "minimessage-macro",
-    "minimessage-impl",
-    "minimessage-runtime",
-    "minimessage-rt-compat",
-]
+members = ["minimessage-macro", "minimessage-impl", "minimessage-runtime"]
 
 [lints.clippy]
 "missing_errors_doc" = "allow"

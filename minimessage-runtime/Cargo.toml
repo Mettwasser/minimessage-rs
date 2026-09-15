@@ -7,6 +7,11 @@ description = "Runtime minimessage deserialization into a generic component tree
 repository = "https://github.com/Mettwasser/minimessage-rs"
 homepage = "https://github.com/Mettwasser/minimessage-rs"
 
+[features]
+default = ["pumpkin"]
+pumpkin = ["dep:pumpkin-plugin-api"]
+
 [dependencies]
 minimessage-impl = { path = "../minimessage-impl", version = "0.1.2" }
 thiserror = "2.0.20"
+pumpkin-plugin-api = { version = "0.1.0-dev+26.2-26.45", optional = true }

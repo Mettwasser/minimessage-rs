@@ -76,20 +76,7 @@ impl CommandHandler for TestCommandHandler {
 
 # Dynamic Rendering
 
-Dynamic rendering requires a new GIT dependency.
-Why? The `pumpkin-plugin-api` is a git dependency which cannot be pushed to crates.io.
-This also allows this project to stay MIT licensed.
-
-To use the dynamic renderer "properly", add this dependency:
-
-```toml
-[dependencies]
-minimessage-rt-compat = { git = "https://github.com/Mettwasser/minimessage-rs", package = "minimessage-rt-compat" }
-```
-
-Please note however that this dependency is licensed as GPLv3 because of its dependency to `pumpkin-plugin-api`
-
-If that's done, you can use the renderer as follows:
+Dynamic rendering allows to deserialize any arbitrary runtime string into a `TextComponent`.
 
 ```rs
 struct TestCommandHandler;
@@ -106,7 +93,7 @@ impl CommandHandler for TestCommandHandler {
 
         let component = minimessage_rs::deserialize_with_args(text, args).unwrap();
 
-        sender.send_message(minimessage_rt_compat::convert(&component));
+        sender.send_message(component);
 
         Ok(0)
     }
@@ -117,12 +104,11 @@ impl CommandHandler for TestCommandHandler {
 
 # Crate Structure
 
-| Crate                   | Description                                                                                 |
-| ----------------------- | ------------------------------------------------------------------------------------------- |
-| `minimessage-rs`        | Re-exports for convenience                                                                  |
-| `minimessage-impl`      | Core minimessage parser                                                                     |
-| `minimessage-macro`     | `minimessage!` proc macro                                                                   |
-| `minimessage-runtime`   | Runtime deserialization into a generic component tree                                       |
-| `minimessage-rt-compat` | Converts runtime components to Pumpkin's `TextComponent` (not included in `minimessage-rs`) |
+| Crate                 | Description                                           |
+| --------------------- | ----------------------------------------------------- |
+| `minimessage-rs`      | Re-exports for convenience                            |
+| `minimessage-impl`    | Core minimessage parser                               |
+| `minimessage-macro`   | `minimessage!` proc macro                             |
+| `minimessage-runtime` | Runtime deserialization into a generic component tree |
 
-All crates are MIT licensed. `minimessage-rt-compat` is GPLv3 due to its dependency on `pumpkin-plugin-api`.
+All crates are MIT licensed.
